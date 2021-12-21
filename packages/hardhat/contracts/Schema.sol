@@ -7,68 +7,23 @@ import "hardhat/console.sol";
 
 contract Schema {
 
-//Organization
-struct Org {
-    bytes32 id;
-    string name;
-    address owner;
-    bytes32[] boards;
-    mapping(bytes32 => Board) boardById;
-    bool initialized;
-}
+    struct Board { 
+        bytes32 id; 
+        string title;
+        mapping(bytes32 => Item) items;
+        string[] columns;
+    }
 
-mapping(bytes32 => Org) public orgById;
-Org[] public orgs;
+    mapping(bytes32 => Board) public boards;
 
-//User
-struct User {
-    address id;
-    mapping(bytes32 => Board) boards;
-    mapping(bytes32 => Org) orgs;
-}
+    struct Item {
+        bytes32 id;
+        bytes32 boardId;
+        string title;
+        string description;
+        uint256 column;
+    }
 
-mapping(address => User) userByAddress;
-User[] public users;
-
-//Item
-struct Item {
-    bytes32 id;
-    bytes32 org;
-    bytes32 board;
-    bytes32 status; 
-    bytes32[] metadata;
-    string title;
-    string description;
-    address assignedTo;
-}
-
-Item[] public items;
-mapping(bytes32 => Item) public itemById;
-
-//Status
-struct Status { 
-    bytes32 id;
-    string title;
-    bool initialized;
-}
-
-mapping(bytes32 => Status) public statuses;
-Status[] public statusList;
-
-//Board
-struct Board {
-    bytes32 id;
-    bytes32 orgId;
-    string title;
-    Status[] statuses;
-    Item[] items;
-    address[] admins;
-    address[] members;
-    bytes32 metadata;
-    bool initialized;
-}
-
-mapping(bytes32 => Board) public boards;
-Board[] public boardList;
+    mapping(bytes32 => Item) public items;
 
 }
