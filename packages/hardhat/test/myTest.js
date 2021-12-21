@@ -5,7 +5,9 @@ const { solidity } = require("ethereum-waffle");
 use(solidity);
 
 describe("My Dapp", function () {
-  let myContract;
+  let kanban;
+  let board;
+  let item;
 
   // quick fix to let gas reporter fetch data from gas station & coinmarketcap
   before((done) => {
@@ -14,30 +16,44 @@ describe("My Dapp", function () {
 
   describe("YourContract", function () {
     it("Should deploy YourContract", async function () {
-      const YourContract = await ethers.getContractFactory("YourContract");
-
-      myContract = await YourContract.deploy();
+      const YourContract = await ethers.getContractFactory("Kanban");
+      kanban = await YourContract.deploy();
     });
 
-    describe("setPurpose()", function () {
-      it("Should be able to set a new purpose", async function () {
-        const newPurpose = "Test Purpose";
+    describe("createBoard()", function () {
+      it("Should create a new board", async function () {
+        const columns = ["backlog", "todo", "in progress", "completed"];
+        const title = "My Kanban";
 
-        await myContract.setPurpose(newPurpose);
-        expect(await myContract.purpose()).to.equal(newPurpose);
+        board = await kanban.computeBoardId(title);
+
+        expect(await kanban.createBoard(title, columns))
+          .to.emit(kanban, "BoardCreated")
+          .withArgs(board, title, columns);
       });
+    });
 
-      // Uncomment the event and emit lines in YourContract.sol to make this test pass
+    describe("createItem()", function () {
+      it("Should create an item", async function () {
+        const title = "First Item";
+        const description = "About my first item";
 
-      /*it("Should emit a SetPurpose event ", async function () {
-        const [owner] = await ethers.getSigners();
+        item = await kanban.computeItemId(title, description);
 
-        const newPurpose = "Another Test Purpose";
+        expect(await kanban.createItem(board, title, description))
+          .to.emit(kanban, "ItemCreated")
+          .withArgs(board, item, title, description);
 
-        expect(await myContract.setPurpose(newPurpose)).to.
-          emit(myContract, "SetPurpose").
-            withArgs(owner.address, newPurpose);
-      });*/
+        expect((await kanban.items(item)).id).to.eql(item);
+      });
+    });
+
+    describe("moveItem()", function () {
+      it("Should move an existing item", async function () {
+        expect(await kanban.moveItem(item, 2))
+          .to.emit(kanban, "ItemMoved")
+          .withArgs(item, 2);
+      });
     });
   });
 });

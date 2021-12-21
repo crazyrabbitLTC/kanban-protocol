@@ -8,7 +8,7 @@ import "./Schema.sol";
 // https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
 
 contract Kanban is Schema {
-    event BoardCreated(string Title, string[] Columns);
+    event BoardCreated(bytes32 indexed id, string Title, string[] Columns);
 
     event ItemCreated(
         bytes32 indexed BoardId,
@@ -18,11 +18,19 @@ contract Kanban is Schema {
     );
     event ItemMoved(bytes32 indexed ItemId, uint256 Column);
 
+    function computeBoardId(string memory _title)
+        public
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encode(_title));
+    }
+
     function createBoard(string memory _title, string[] memory _columns)
         public
     {
         //Id
-        bytes32 id = keccak256(abi.encode(_title));
+        bytes32 id = computeBoardId(_title);
 
         //Create Struct
         Board storage board = boards[id];
@@ -32,16 +40,21 @@ contract Kanban is Schema {
         board.columns = _columns;
 
         //emit event
-        emit BoardCreated(_title, _columns);
+        emit BoardCreated(id, _title, _columns);
     }
 
+    function computeItemId(string memory _title,
+        string memory _description ) public pure returns (bytes32){
+        return keccak256(abi.encode(_title, _description));
+    }
+    
     function createItem(
         bytes32 _boardId,
         string memory _title,
         string memory _description
     ) public {
         //Id
-        bytes32 id = keccak256(abi.encode(_title, _description));
+        bytes32 id = computeItemId(_title, _description);
 
         //Create Struct
         Item storage item = items[id];
