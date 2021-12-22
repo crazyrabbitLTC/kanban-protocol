@@ -13,3 +13,18 @@ type Sender @entity {
   createdAt: BigInt!
   purposeCount: BigInt!
 }
+
+
+type Board @entity {
+  id: ID!
+  title: String!
+  items: [Item!] @derivedFrom(field: "board")
+}
+
+type Item @entity {
+  id: ID!
+  board: Board!
+  title: String!
+  description: String!
+  column: String!
+}
