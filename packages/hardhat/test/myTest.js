@@ -38,7 +38,7 @@ describe("My Dapp", function () {
         const title = "First Item";
         const description = "About my first item";
 
-        item = await kanban.computeItemId(title, description);
+        item = await kanban.computeItemId(title, description, board);
 
         expect(await kanban.createItem(board, title, description))
           .to.emit(kanban, "ItemCreated")
@@ -53,6 +53,13 @@ describe("My Dapp", function () {
         expect(await kanban.moveItem(item, 2))
           .to.emit(kanban, "ItemMoved")
           .withArgs(item, 2);
+      });
+    });
+
+    describe("deleteItem()", function () {
+      it("Should delete and existing item", async function () {
+        // todo check the args
+        expect(await kanban.deleteItem(item)).to.emit(kanban, "ItemDeleted");
       });
     });
   });

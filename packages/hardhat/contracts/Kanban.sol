@@ -56,7 +56,7 @@ contract Kanban is Schema {
         public
     {
         //Id
-        bytes32 id = keccak256(abi.encode(_title));
+        bytes32 id = computeBoardId(_title);
 
         //Create Struct
         Board storage board = boards[id];
@@ -75,12 +75,12 @@ contract Kanban is Schema {
         string memory _description
     ) public onlyBoardAdminOrUserPermission(_boardId) {
         //Id
-        bytes32 id = keccak256(abi.encode(_title, _description, _boardId));
+        bytes32 id = computeItemId(_title, _description, _boardId);
 
         //Require item does not already exist with Title and Description
         //Todo: find a better way to generate IDs
         require(
-            items[id].id != 0,
+            items[id].id == 0,
             "err: item with same title and description already exists"
         );
 
@@ -92,6 +92,7 @@ contract Kanban is Schema {
         item.title = _title;
         item.description = _description;
         item.column = 0;
+        item.owner = msg.sender;
 
         //emit event
         emit ItemCreated(_boardId, id, _title, _description);
@@ -120,5 +121,13 @@ contract Kanban is Schema {
         items[_itemId].column = 0;
 
         emit ItemDeleted(_itemId, msg.sender);
+    }
+
+    function computeBoardId(string memory _title) public pure returns (bytes32){
+        return keccak256(abi.encode(_title));
+    }
+
+    function computeItemId(string memory _title, string memory _description, bytes32 _boardId) public pure returns (bytes32){
+       return keccak256(abi.encode(_title, _description, _boardId));
     }
 }
