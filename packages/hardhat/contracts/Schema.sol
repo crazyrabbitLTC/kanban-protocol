@@ -11,6 +11,8 @@ contract Schema {
         bytes32 id; 
         string title;
         mapping(bytes32 => Item) items;
+        mapping(address => bool) admins;
+        mapping(address => bool) users;
         string[] columns;
     }
 
@@ -22,6 +24,7 @@ contract Schema {
         string title;
         string description;
         uint256 column;
+        address owner;
     }
 
     mapping(bytes32 => Item) public items;
